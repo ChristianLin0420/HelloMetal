@@ -30,6 +30,7 @@ import UIKit
 
 // MARK: - 1) Creating an MTLDevice
 import Metal
+import MetalKit
 
 class ViewController: UIViewController {
   
@@ -41,16 +42,30 @@ class ViewController: UIViewController {
       0.0,  1.0, 0.0,
       -1.0, -1.0, 0.0,
       1.0, -1.0, 0.0,
-      0.75, 0.5, 0.0
+      0.5, 0.5, 0.0
+  ]
+  
+  let indicesData: [UInt16] = [
+      0, 1, 2,
+      2, 3, 0
   ]
   
   var vertexBuffer: MTLBuffer!
+  var indicesBuffer: MTLBuffer!
 
   var pipelineState: MTLRenderPipelineState!
   
   var commandQueue: MTLCommandQueue!
   
   var timer: CADisplayLink!
+  
+  struct Constants {
+    var animateBy: Float = 0.0
+  }
+  
+  var constants = Constants()
+  
+  var time: Float = 0
   
   override func viewDidLoad() {
   
@@ -74,8 +89,10 @@ class ViewController: UIViewController {
     */
     
     // MARK: - 3) Creating a Vertex Buffer
-    let dataSize = vertexData.count * MemoryLayout.size(ofValue: vertexData[0])         // 1
-    vertexBuffer = device.makeBuffer(bytes: vertexData, length: dataSize, options: [])  // 2
+    let vertexDataSize = vertexData.count * MemoryLayout.size(ofValue: vertexData[0])         // 1
+    let indicesDatasize = indicesData.count * MemoryLayout.size(ofValue: indicesData[0])
+    vertexBuffer = device.makeBuffer(bytes: vertexData, length: vertexDataSize, options: [])  // 2
+    indicesBuffer = device.makeBuffer(bytes: indicesData, length: indicesDatasize, options: [])
     
     /*
      1. You need to get the size of the vertex data in bytes. You do this by multiplying the size of the first element by the count of elements in the array.
@@ -131,6 +148,8 @@ class ViewController: UIViewController {
     
     // MARK: - 3) Creating a Command Buffer
     let commandBuffer = commandQueue.makeCommandBuffer()!
+    
+    time += 1 / Float(60)
 
     // MARK: - 4) Creating a Render Command Encoder
     let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
@@ -139,7 +158,8 @@ class ViewController: UIViewController {
     renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
     
     // Here, you’re telling the GPU to draw a set of triangles, based on the vertex buffer. To keep things simple, you are only drawing one. The method arguments tell Metal that each triangle consists of three vertices, starting at index 0 inside the vertex buffer, and there is one triangle total.
-    renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexData.count / 3, instanceCount: 1)
+//    renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexData.count / 3, instanceCount: 1)
+    renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: indicesData.count, indexType: .uint16, indexBuffer: indicesBuffer, indexBufferOffset: 0)
     renderEncoder.endEncoding()
     
     // MARK: - 5) Committing Your Command Buffer
