@@ -31,12 +31,37 @@
 #include <metal_stdlib>
 using namespace metal;
 
-vertex float4 basic_vertex(                                   // 1
-  const device packed_float3* vertex_array [[ buffer(0) ]],   // 2
-  unsigned int vid [[ vertex_id ]]) {                         // 3
+struct Constants {
+  float animateBy;
+};
+
+struct VertexIn {
+  float4 position [[ attribute(0) ]];
+  float4 color [[ attribute(1) ]];
+};
+
+struct VertexOut {
+  float4 position [[ position ]];
+  float4 color;
+};
+
+vertex VertexOut basic_vertex(                                   // 1
+//  const device packed_float3* vertex_array [[ buffer(0) ]],   // 2
+  const VertexIn vertexIn [[ stage_in ]]
+//  constant Constants &constants [[ buffer(1) ]],
+//  unsigned int vid [[ vertex_id ]]
+                           ) {                         // 3
   
-  return float4(vertex_array[vid], 1.0);                      // 4
+//  float4 position = float4(vertex_array[vid], 1);
+//  position.x += constants.animateBy;
+  VertexOut vertexOut;
+  vertexOut.position = vertexIn.position;
+  vertexOut.color = vertexIn.color;
   
+  
+//  return float4(vertex_array[vid], 1.0);                      // 4
+//  return position;
+  return vertexOut;
   /*
    1. All vertex shaders must begin with the keyword vertex. The function must return (at least) the final position of the vertex. You do this here by indicating float4 (a vector of four floats). You then give the name of the vertex shader; you’ll look up the shader later using this name.
    2. The first parameter is a pointer to an array of packed_float3 (a packed vector of three floats) – i.e., the position of each vertex.Use the [[ ... ]] syntax to declare attributes, which you can use to specify additional information such as resource locations, shader inputs and built-in variables. Here, you mark this parameter with [[ buffer(0) ]] to indicate that the first buffer of data that you send to your vertex shader from your Metal code will populate this parameter.
@@ -46,9 +71,10 @@ vertex float4 basic_vertex(                                   // 1
 }
 
 // MARK: - 5) Creating a Fragment Shader
-fragment half4 basic_fragment() { // 1
-  return half4(1.0);              // 2
-  
+fragment half4 basic_fragment(VertexOut vertexIn [[ stage_in ]]) { // 1
+//  return half4(1, 1, 0, 1);              // 2
+
+  return half4(vertexIn.color);
   /*
    1. All fragment shaders must begin with the keyword fragment. The function must return (at least) the final color of the fragment. You do so here by indicating half4 (a four-component color value RGBA). Note that half4 is more memory efficient than float4 because you’re writing to less GPU memory.
    2. Here, you return (1, 1, 1, 1) for the color, which is white.

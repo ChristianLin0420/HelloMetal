@@ -38,11 +38,18 @@ class ViewController: UIViewController {
   
   var metalLayer: CAMetalLayer!
   
-  let vertexData: [Float] = [
-      0.0,  1.0, 0.0,
-      -1.0, -1.0, 0.0,
-      1.0, -1.0, 0.0,
-      0.5, 0.5, 0.0
+//  let vertexData: [Float] = [
+//      0.0,  1.0, 0.0,
+//      -1.0, -1.0, 0.0,
+//      1.0, -1.0, 0.0,
+//      0.5, 0.5, 0.0
+//  ]
+  
+  let vertexData: [Vertex] = [
+    Vertex(position: float3(-1, 1, 0), color: float4(1, 0, 0, 1)),  // v1
+    Vertex(position: float3(-1, -1, 0), color: float4(0, 1, 0, 1)), // v2
+    Vertex(position: float3(1, -1, 0), color: float4(0, 0, 1, 1)),  // v3
+    Vertex(position: float3(1, 1, 0), color: float4(1, 0, 1, 1))    // v4
   ]
   
   let indicesData: [UInt16] = [
@@ -89,7 +96,7 @@ class ViewController: UIViewController {
     */
     
     // MARK: - 3) Creating a Vertex Buffer
-    let vertexDataSize = vertexData.count * MemoryLayout.size(ofValue: vertexData[0])         // 1
+    let vertexDataSize = vertexData.count * MemoryLayout<Vertex>.stride         // 1
     let indicesDatasize = indicesData.count * MemoryLayout.size(ofValue: indicesData[0])
     vertexBuffer = device.makeBuffer(bytes: vertexData, length: vertexDataSize, options: [])  // 2
     indicesBuffer = device.makeBuffer(bytes: indicesData, length: indicesDatasize, options: [])
@@ -111,6 +118,18 @@ class ViewController: UIViewController {
     pipelineStateDescriptor.fragmentFunction = fragmentProgram
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
         
+    let vertexDescriptor = MTLVertexDescriptor()
+    vertexDescriptor.attributes[0].format = .float3
+    vertexDescriptor.attributes[0].offset = 0
+    vertexDescriptor.attributes[0].bufferIndex = 0
+    
+    vertexDescriptor.attributes[1].format = .float4
+    vertexDescriptor.attributes[1].offset = MemoryLayout<Vertex>.stride
+    vertexDescriptor.attributes[1].bufferIndex = 0
+    
+    vertexDescriptor.layouts[0].stride = MemoryLayout<Vertex>.stride
+    pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
+    
     // 3
     pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
     
@@ -130,12 +149,13 @@ class ViewController: UIViewController {
                                                                        // gameloop() every time the screen refreshes.
     timer.add(to: RunLoop.main, forMode: .default)
     
-    
   }
   
   // MARK: - 2) Creating a Render Pass Descriptor
   func render() {
     guard let drawable = metalLayer?.nextDrawable() else { return }
+    
+    print("time = \(time)")
     
     let renderPassDescriptor = MTLRenderPassDescriptor()
     renderPassDescriptor.colorAttachments[0].texture = drawable.texture
@@ -150,12 +170,17 @@ class ViewController: UIViewController {
     let commandBuffer = commandQueue.makeCommandBuffer()!
     
     time += 1 / Float(60)
+    
+    let animateBy = abs(sin(time) / 2 + 0.5)
+    constants.animateBy = animateBy
 
     // MARK: - 4) Creating a Render Command Encoder
     let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
     
     renderEncoder.setRenderPipelineState(pipelineState)
     renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+    
+    renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.stride, index: 1)
     
     // Here, you’re telling the GPU to draw a set of triangles, based on the vertex buffer. To keep things simple, you are only drawing one. The method arguments tell Metal that each triangle consists of three vertices, starting at index 0 inside the vertex buffer, and there is one triangle total.
 //    renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexData.count / 3, instanceCount: 1)
