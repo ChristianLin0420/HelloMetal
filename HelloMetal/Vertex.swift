@@ -28,8 +28,18 @@
 
 import simd
 
+//struct Vertex {
+//  var position: float3
+//  var color: float4
+//}
+
 struct Vertex {
-  var position: float3
-  var color: float4
+  var x, y, z: Float      // position data
+  var r, g, b, a: Float   // color data
+
+  func floatBuffer() -> [Float] {
+    return [x, y, z, r, g, b, a]
+  }
+
 }
  

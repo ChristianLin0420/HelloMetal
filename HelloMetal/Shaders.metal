@@ -36,8 +36,12 @@ struct Constants {
 };
 
 struct VertexIn {
-  float4 position [[ attribute(0) ]];
-  float4 color [[ attribute(1) ]];
+//  float4 position [[ attribute(0) ]];
+//  float4 color [[ attribute(1) ]];
+  
+  packed_float3 position;
+  packed_float4 color;
+
 };
 
 struct VertexOut {
@@ -45,30 +49,35 @@ struct VertexOut {
   float4 color;
 };
 
-vertex VertexOut basic_vertex(                                   // 1
-//  const device packed_float3* vertex_array [[ buffer(0) ]],   // 2
-  const VertexIn vertexIn [[ stage_in ]]
-//  constant Constants &constants [[ buffer(1) ]],
-//  unsigned int vid [[ vertex_id ]]
-                           ) {                         // 3
+struct Uniforms {
+  float4x4 modelMatrix;
+  float4x4 projectionMatrix;
+};
+
+
+vertex VertexOut basic_vertex(
+  const device VertexIn* vertex_array [[ buffer(0) ]],
+  const device Uniforms&  uniforms    [[ buffer(1) ]],           //1
+  unsigned int vid [[ vertex_id ]]) {
+
+  float4x4 mv_Matrix = uniforms.modelMatrix;                     //2
+  float4x4 proj_Matrix = uniforms.projectionMatrix;
+
   
-//  float4 position = float4(vertex_array[vid], 1);
-//  position.x += constants.animateBy;
-  VertexOut vertexOut;
-  vertexOut.position = vertexIn.position;
-  vertexOut.color = vertexIn.color;
-  
-  
-//  return float4(vertex_array[vid], 1.0);                      // 4
-//  return position;
-  return vertexOut;
-  /*
-   1. All vertex shaders must begin with the keyword vertex. The function must return (at least) the final position of the vertex. You do this here by indicating float4 (a vector of four floats). You then give the name of the vertex shader; you’ll look up the shader later using this name.
-   2. The first parameter is a pointer to an array of packed_float3 (a packed vector of three floats) – i.e., the position of each vertex.Use the [[ ... ]] syntax to declare attributes, which you can use to specify additional information such as resource locations, shader inputs and built-in variables. Here, you mark this parameter with [[ buffer(0) ]] to indicate that the first buffer of data that you send to your vertex shader from your Metal code will populate this parameter.
-   3. The vertex shader also takes a special parameter with the vertex_id attribute, which means that the Metal will fill it in with the index of this particular vertex inside the vertex array.
-   4. Here, you look up the position inside the vertex array based on the vertex id and return that. You also convert the vector to a float4, where the final value is 1.0 — long story short, this is required for 3D math.
-  */
+  VertexIn VertexIn = vertex_array[vid];
+
+  VertexOut VertexOut;
+  VertexOut.position = proj_Matrix * mv_Matrix * float4(VertexIn.position,1);  //3
+  VertexOut.color = VertexIn.color;
+
+  return VertexOut;
 }
+
+/*
+ 1. You add a second parameter for the uniform buffer, marking that it’s incoming in slot 1 to match up with the code you wrote earlier.
+ 2. You then get a handle to the model matrix in the uniforms structure.
+ 3. To apply the model transformation to a vertex, you simply multiply the vertex position by the model matrix.
+*/
 
 // MARK: - 5) Creating a Fragment Shader
 fragment half4 basic_fragment(VertexOut vertexIn [[ stage_in ]]) { // 1

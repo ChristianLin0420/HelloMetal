@@ -32,50 +32,25 @@ import UIKit
 import Metal
 import MetalKit
 
-class ViewController: UIViewController {
+protocol MetalViewControllerDelegate : class {
+  func updateLogic(timeSinceLastUpdate: CFTimeInterval)
+  func renderObjects(drawable: CAMetalDrawable)
+}
+
+class MetalViewController: UIViewController {
   
   var device: MTLDevice!
-  
   var metalLayer: CAMetalLayer!
-  
-//  let vertexData: [Float] = [
-//      0.0,  1.0, 0.0,
-//      -1.0, -1.0, 0.0,
-//      1.0, -1.0, 0.0,
-//      0.5, 0.5, 0.0
-//  ]
-  
-  let vertexData: [Vertex] = [
-    Vertex(position: float3(-1, 1, 0), color: float4(1, 0, 0, 1)),  // v1
-    Vertex(position: float3(-1, -1, 0), color: float4(0, 1, 0, 1)), // v2
-    Vertex(position: float3(1, -1, 0), color: float4(0, 0, 1, 1)),  // v3
-    Vertex(position: float3(1, 1, 0), color: float4(1, 0, 1, 1))    // v4
-  ]
-  
-  let indicesData: [UInt16] = [
-      0, 1, 2,
-      2, 3, 0
-  ]
-  
-  var vertexBuffer: MTLBuffer!
-  var indicesBuffer: MTLBuffer!
-
   var pipelineState: MTLRenderPipelineState!
-  
   var commandQueue: MTLCommandQueue!
-  
   var timer: CADisplayLink!
+  var projectionMatrix: Matrix4!
+  var lastFrameTimestamp: CFTimeInterval = 0.0
   
-  struct Constants {
-    var animateBy: Float = 0.0
-  }
-  
-  var constants = Constants()
-  
-  var time: Float = 0
+  weak var metalViewControllerDelegate: MetalViewControllerDelegate?
   
   override func viewDidLoad() {
-  
+      
     device = MTLCreateSystemDefaultDevice()
     
     // MARK: - 2) Creating a CAMetalLayer
@@ -95,11 +70,13 @@ class ViewController: UIViewController {
      6. Finally, you add the layer as a sublayer of the view’s main layer.
     */
     
+    projectionMatrix = Matrix4.makePerspectiveViewAngle(Matrix4.degrees(toRad: 85.0), aspectRatio: Float(self.view.bounds.size.width / self.view.bounds.size.height), nearZ: 0.01, farZ: 100.0)
+    
     // MARK: - 3) Creating a Vertex Buffer
-    let vertexDataSize = vertexData.count * MemoryLayout<Vertex>.stride         // 1
-    let indicesDatasize = indicesData.count * MemoryLayout.size(ofValue: indicesData[0])
-    vertexBuffer = device.makeBuffer(bytes: vertexData, length: vertexDataSize, options: [])  // 2
-    indicesBuffer = device.makeBuffer(bytes: indicesData, length: indicesDatasize, options: [])
+//    let vertexDataSize = vertexData.count * MemoryLayout<Vertex>.stride         // 1
+//    let indicesDatasize = indicesData.count * MemoryLayout.size(ofValue: indicesData[0])
+//    vertexBuffer = device.makeBuffer(bytes: vertexData, length: vertexDataSize, options: [])  // 2
+//    indicesBuffer = device.makeBuffer(bytes: indicesData, length: indicesDatasize, options: [])
     
     /*
      1. You need to get the size of the vertex data in bytes. You do this by multiplying the size of the first element by the count of elements in the array.
@@ -117,18 +94,6 @@ class ViewController: UIViewController {
     pipelineStateDescriptor.vertexFunction = vertexProgram
     pipelineStateDescriptor.fragmentFunction = fragmentProgram
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-        
-    let vertexDescriptor = MTLVertexDescriptor()
-    vertexDescriptor.attributes[0].format = .float3
-    vertexDescriptor.attributes[0].offset = 0
-    vertexDescriptor.attributes[0].bufferIndex = 0
-    
-    vertexDescriptor.attributes[1].format = .float4
-    vertexDescriptor.attributes[1].offset = MemoryLayout<Vertex>.stride
-    vertexDescriptor.attributes[1].bufferIndex = 0
-    
-    vertexDescriptor.layouts[0].stride = MemoryLayout<Vertex>.stride
-    pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
     
     // 3
     pipelineState = try! device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
@@ -145,54 +110,33 @@ class ViewController: UIViewController {
     // --------- Rendering the Triangle --------- //
     
     // MARK: - 1) Creating a Display Link
-    timer = CADisplayLink(target: self, selector: #selector(gameloop)) // This sets up your code to call a method named
-                                                                       // gameloop() every time the screen refreshes.
+    timer = CADisplayLink(target: self, selector: #selector(MetalViewController.newFrame(displayLink:)))
     timer.add(to: RunLoop.main, forMode: .default)
-    
   }
   
   // MARK: - 2) Creating a Render Pass Descriptor
+  
   func render() {
     guard let drawable = metalLayer?.nextDrawable() else { return }
-    
-    print("time = \(time)")
-    
-    let renderPassDescriptor = MTLRenderPassDescriptor()
-    renderPassDescriptor.colorAttachments[0].texture = drawable.texture
-    renderPassDescriptor.colorAttachments[0].loadAction = .clear
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(
-      red: 0.0,
-      green: 104.0/255.0,
-      blue: 55.0/255.0,
-      alpha: 1.0)
-    
-    // MARK: - 3) Creating a Command Buffer
-    let commandBuffer = commandQueue.makeCommandBuffer()!
-    
-    time += 1 / Float(60)
-    
-    let animateBy = abs(sin(time) / 2 + 0.5)
-    constants.animateBy = animateBy
-
-    // MARK: - 4) Creating a Render Command Encoder
-    let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
-    
-    renderEncoder.setRenderPipelineState(pipelineState)
-    renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-    
-    renderEncoder.setVertexBytes(&constants, length: MemoryLayout<Constants>.stride, index: 1)
-    
-    // Here, you’re telling the GPU to draw a set of triangles, based on the vertex buffer. To keep things simple, you are only drawing one. The method arguments tell Metal that each triangle consists of three vertices, starting at index 0 inside the vertex buffer, and there is one triangle total.
-//    renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: vertexData.count / 3, instanceCount: 1)
-    renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: indicesData.count, indexType: .uint16, indexBuffer: indicesBuffer, indexBufferOffset: 0)
-    renderEncoder.endEncoding()
-    
-    // MARK: - 5) Committing Your Command Buffer
-    commandBuffer.present(drawable)
-    commandBuffer.commit()
+    self.metalViewControllerDelegate?.renderObjects(drawable: drawable)
   }
 
-  @objc func gameloop() {
+  @objc func newFrame(displayLink: CADisplayLink) {
+      
+    if lastFrameTimestamp == 0.0 {
+      lastFrameTimestamp = displayLink.timestamp
+    }
+      
+    let elapsed: CFTimeInterval = displayLink.timestamp - lastFrameTimestamp
+    lastFrameTimestamp = displayLink.timestamp
+      
+    gameloop(timeSinceLastUpdate: elapsed)
+  }
+    
+  func gameloop(timeSinceLastUpdate: CFTimeInterval) {
+      
+    self.metalViewControllerDelegate?.updateLogic(timeSinceLastUpdate: timeSinceLastUpdate)
+
     autoreleasepool {
       self.render()
     }
