@@ -42,6 +42,7 @@ class BufferProvider: NSObject {
   
   init(device:MTLDevice, inflightBuffersCount: Int, sizeOfUniformsBuffer: Int) {
     avaliableResourcesSemaphore = DispatchSemaphore(value: inflightBuffersCount)
+    
     self.inflightBuffersCount = inflightBuffersCount
     uniformsBuffers = [MTLBuffer]()
     

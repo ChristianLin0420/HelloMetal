@@ -53,12 +53,14 @@ class MetalViewController: UIViewController {
       
     device = MTLCreateSystemDefaultDevice()
     
+    projectionMatrix = Matrix4.makePerspectiveViewAngle(Matrix4.degrees(toRad: 85.0), aspectRatio: Float(self.view.bounds.size.width / self.view.bounds.size.height), nearZ: 0.01, farZ: 100.0)
+    
     // MARK: - 2) Creating a CAMetalLayer
     metalLayer = CAMetalLayer()          // 1
     metalLayer.device = device           // 2
     metalLayer.pixelFormat = .bgra8Unorm // 3
     metalLayer.framebufferOnly = true    // 4
-    metalLayer.frame = view.layer.frame  // 5
+//    metalLayer.frame = view.layer.frame  // 5
     view.layer.addSublayer(metalLayer)   // 6
     
     /*
@@ -69,8 +71,6 @@ class MetalViewController: UIViewController {
      5. You set the frame of the layer to match the frame of the view.
      6. Finally, you add the layer as a sublayer of the view’s main layer.
     */
-    
-    projectionMatrix = Matrix4.makePerspectiveViewAngle(Matrix4.degrees(toRad: 85.0), aspectRatio: Float(self.view.bounds.size.width / self.view.bounds.size.height), nearZ: 0.01, farZ: 100.0)
     
     // MARK: - 3) Creating a Vertex Buffer
 //    let vertexDataSize = vertexData.count * MemoryLayout<Vertex>.stride         // 1
@@ -113,6 +113,24 @@ class MetalViewController: UIViewController {
     timer = CADisplayLink(target: self, selector: #selector(MetalViewController.newFrame(displayLink:)))
     timer.add(to: RunLoop.main, forMode: .default)
   }
+  
+  //1
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+      
+    if let window = view.window {
+      let scale = window.screen.nativeScale
+      let layerSize = view.bounds.size
+      //2
+      view.contentScaleFactor = scale
+      metalLayer.frame = CGRect(x: 0, y: 0, width: layerSize.width, height: layerSize.height)
+      metalLayer.drawableSize = CGSize(width: layerSize.width * scale, height: layerSize.height * scale)
+    }
+    
+    projectionMatrix = Matrix4.makePerspectiveViewAngle(Matrix4.degrees(toRad: 85.0), aspectRatio: Float(self.view.bounds.size.width / self.view.bounds.size.height), nearZ: 0.01, farZ: 100.0)
+
+  }
+
   
   // MARK: - 2) Creating a Render Pass Descriptor
   
