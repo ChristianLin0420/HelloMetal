@@ -26,22 +26,26 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import simd
+import Foundation
 
-//struct Vertex {
-//  var position: float3
-//  var color: float4
-//}
+struct Light {
+  
+  var color: (Float, Float, Float)  // 1
+  var ambientIntensity: Float       // 2
+  var direction: (Float, Float, Float)
+  var diffuseIntensity: Float
+  var shininess: Float
+  var specularIntensity: Float
 
-struct Vertex {
-  var x, y, z: Float      // position data
-  var r, g, b, a: Float   // color data
-  var s, t: Float         // texture coordinates
-  var nX,nY,nZ: Float     // normal
-
-
-  func floatBuffer() -> [Float] {
-    return [x, y, z, r, g, b, a, s, t, nX, nY, nZ]
+  static func size() -> Int {
+    return MemoryLayout<Float>.size * 12
+  }
+   
+  func raw() -> [Float] {
+    let raw = [color.0, color.1, color.2, ambientIntensity,
+               direction.0, direction.1, direction.2, diffuseIntensity,
+               shininess, specularIntensity]
+    return raw
   }
 }
- 
+

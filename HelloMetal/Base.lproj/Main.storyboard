@@ -11,12 +11,15 @@
         <scene sceneID="ce5-Ti-oAs">
             <objects>
                 <viewController id="th9-cg-1hT" customClass="MySceneViewController" customModule="HelloMetal" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="tRT-Tr-Kme">
+                    <view key="view" contentMode="scaleToFill" id="tRT-Tr-Kme" customClass="MTKView">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="Gdp-OR-WBr"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
+                    <connections>
+                        <outlet property="mtkView" destination="tRT-Tr-Kme" id="a0N-nP-n5r"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8OU-Kx-2Pw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

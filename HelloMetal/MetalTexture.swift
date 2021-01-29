@@ -37,7 +37,7 @@ class MetalTexture: NSObject {
   let bitsPerComponent:Int! = 8
   
   //MARK: - Creation
-  init(resourceName: String,ext: String, mipmaped:Bool){
+  init(resourceName: String, ext: String, mipmaped: Bool) {
     
     path = Bundle.main.path(forResource: resourceName, ofType: ext)
     width    = 0
@@ -51,7 +51,7 @@ class MetalTexture: NSObject {
     super.init()
   }
   
-  func loadTexture(device: MTLDevice, commandQ: MTLCommandQueue, flip: Bool){
+  func loadTexture(device: MTLDevice, commandQ: MTLCommandQueue, flip: Bool) {
     
     let image = (UIImage(contentsOfFile: path)?.cgImage)!
     let colorSpace = CGColorSpaceCreateDeviceRGB()
@@ -65,7 +65,7 @@ class MetalTexture: NSObject {
     let bounds = CGRect(x: 0, y: 0, width: Int(width), height: Int(height))
     context.clear(bounds)
     
-    if flip == false{
+    if flip == false {
       context.translateBy(x: 0, y: CGFloat(self.height))
       context.scaleBy(x: 1.0, y: -1.0)
     }
@@ -80,7 +80,7 @@ class MetalTexture: NSObject {
     let region = MTLRegionMake2D(0, 0, Int(width), Int(height))
     texture.replace(region: region, mipmapLevel: 0, withBytes: pixelsData, bytesPerRow: Int(rowBytes))
     
-    if (isMipmaped == true){
+    if (isMipmaped == true) {
       generateMipMapLayersUsingSystemFunc(texture: texture, device: device, commandQ: commandQ, block: { (buffer) -> Void in
         print("mips generated")
       })

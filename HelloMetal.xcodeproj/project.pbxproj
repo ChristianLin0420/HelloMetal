@@ -8,11 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		5C2901831F8F6DE700803663 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5C2901821F8F6DE700803663 /* LaunchScreen.storyboard */; };
+		6D3BADAB25C4508100B8ECBD /* Light.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D3BADAA25C4508100B8ECBD /* Light.swift */; };
+		6D3BADAE25C477EF00B8ECBD /* float4x4+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D3BADAD25C477EF00B8ECBD /* float4x4+Extensions.swift */; };
 		6D4353C225B2BD4300DF4B50 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 6D4353C125B2BD4300DF4B50 /* Shaders.metal */; };
 		6DC3FC4C25B470BB00174CE2 /* Vertex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC3FC4B25B470BB00174CE2 /* Vertex.swift */; };
 		6DCC2ADA25C06ECF002199EC /* MetalTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DCC2AD925C06ECF002199EC /* MetalTexture.swift */; };
 		6DCC2ADD25C071D8002199EC /* cube.png in Resources */ = {isa = PBXBuildFile; fileRef = 6DCC2ADC25C071D8002199EC /* cube.png */; };
-		6DF05EE625BB2F1200749A78 /* Matrix4.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DF05EE425BB2F1200749A78 /* Matrix4.m */; };
 		6DF05EEA25BB327500749A78 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF05EE925BB327500749A78 /* Node.swift */; };
 		6DF05EED25BB338300749A78 /* Triangle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF05EEC25BB338300749A78 /* Triangle.swift */; };
 		6DF05EF125BB36C300749A78 /* Cube.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF05EF025BB36C300749A78 /* Cube.swift */; };
@@ -26,13 +27,12 @@
 
 /* Begin PBXFileReference section */
 		5C2901821F8F6DE700803663 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		6D3BADAA25C4508100B8ECBD /* Light.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Light.swift; sourceTree = "<group>"; };
+		6D3BADAD25C477EF00B8ECBD /* float4x4+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "float4x4+Extensions.swift"; sourceTree = "<group>"; };
 		6D4353C125B2BD4300DF4B50 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
 		6DC3FC4B25B470BB00174CE2 /* Vertex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vertex.swift; sourceTree = "<group>"; };
 		6DCC2AD925C06ECF002199EC /* MetalTexture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetalTexture.swift; sourceTree = "<group>"; };
 		6DCC2ADC25C071D8002199EC /* cube.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cube.png; sourceTree = "<group>"; };
-		6DF05EE325BB2F1100749A78 /* HelloMetal-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HelloMetal-Bridging-Header.h"; sourceTree = "<group>"; };
-		6DF05EE425BB2F1200749A78 /* Matrix4.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Matrix4.m; sourceTree = "<group>"; };
-		6DF05EE525BB2F1200749A78 /* Matrix4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Matrix4.h; sourceTree = "<group>"; };
 		6DF05EE925BB327500749A78 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		6DF05EEC25BB338300749A78 /* Triangle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Triangle.swift; sourceTree = "<group>"; };
 		6DF05EF025BB36C300749A78 /* Cube.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cube.swift; sourceTree = "<group>"; };
@@ -87,15 +87,14 @@
 				6DF05EE925BB327500749A78 /* Node.swift */,
 				6DF05EEC25BB338300749A78 /* Triangle.swift */,
 				6DF05EF025BB36C300749A78 /* Cube.swift */,
-				6DF05EE525BB2F1200749A78 /* Matrix4.h */,
-				6DF05EE425BB2F1200749A78 /* Matrix4.m */,
+				6D3BADAA25C4508100B8ECBD /* Light.swift */,
 				6D4353C125B2BD4300DF4B50 /* Shaders.metal */,
+				6D3BADAD25C477EF00B8ECBD /* float4x4+Extensions.swift */,
 				6DCC2ADC25C071D8002199EC /* cube.png */,
 				D2A5F2071F4A9144005CD714 /* Main.storyboard */,
 				D2A5F20A1F4A9144005CD714 /* Assets.xcassets */,
 				5C2901821F8F6DE700803663 /* LaunchScreen.storyboard */,
 				D2A5F20F1F4A9144005CD714 /* Info.plist */,
-				6DF05EE325BB2F1100749A78 /* HelloMetal-Bridging-Header.h */,
 			);
 			path = HelloMetal;
 			sourceTree = "<group>";
@@ -176,9 +175,10 @@
 				6DCC2ADA25C06ECF002199EC /* MetalTexture.swift in Sources */,
 				6DF05F0F25BB4BC400749A78 /* BufferProvider.swift in Sources */,
 				6DF05F0025BB443A00749A78 /* MetalViewController.swift in Sources */,
+				6D3BADAE25C477EF00B8ECBD /* float4x4+Extensions.swift in Sources */,
 				6D4353C225B2BD4300DF4B50 /* Shaders.metal in Sources */,
-				6DF05EE625BB2F1200749A78 /* Matrix4.m in Sources */,
 				6DF05EEA25BB327500749A78 /* Node.swift in Sources */,
+				6D3BADAB25C4508100B8ECBD /* Light.swift in Sources */,
 				6DF05EFA25BB439300749A78 /* MySceneViewController.swift in Sources */,
 				6DF05EF125BB36C300749A78 /* Cube.swift in Sources */,
 				D2A5F2211F4A96D0005CD714 /* AppDelegate.swift in Sources */,
@@ -324,7 +324,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.razeware.hellometal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "HelloMetal/HelloMetal-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -341,7 +341,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.razeware.hellometal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "HelloMetal/HelloMetal-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
